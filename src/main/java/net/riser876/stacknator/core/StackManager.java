@@ -2,13 +2,13 @@ package net.riser876.stacknator.core;
 
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.fabric.api.item.v1.DefaultItemComponentEvents;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.item.Item;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.registry.entry.RegistryEntryList;
-import net.minecraft.registry.tag.TagKey;
-import net.minecraft.util.Identifier;
+import net.minecraft.core.Holder;
+import net.minecraft.core.HolderSet;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.item.Item;
 import net.riser876.stacknator.config.ConfigManager;
 import net.riser876.stacknator.util.StacknatorGlobals;
 import org.slf4j.event.Level;
@@ -32,7 +32,7 @@ public class StackManager {
             context.modify(
                     StackManager::processItem,
                     (builder, item) -> {
-                        builder.add(DataComponentTypes.MAX_STACK_SIZE, CONFIG.ITEMS.get(item.toString()));
+                        builder.set(DataComponents.MAX_STACK_SIZE, CONFIG.ITEMS.get(item.toString()));
                     }
             );
         });
@@ -190,18 +190,18 @@ public class StackManager {
 
     private static void loadTag(String key, int tagStackSize) {
         try {
-            Identifier identifier = Identifier.of(key.replace("#", ""));
+            Identifier identifier = Identifier.parse(key.replace("#", ""));
 
-            TagKey<Item> tagKey = TagKey.of(Registries.ITEM.getKey(), identifier);
+            TagKey<Item> tagKey = TagKey.create(BuiltInRegistries.ITEM.key(), identifier);
 
-            Optional<RegistryEntryList.Named<Item>> items = Registries.ITEM.getOptional(tagKey);
+            Optional<HolderSet.Named<Item>> items = BuiltInRegistries.ITEM.get(tagKey);
 
             if (items.isEmpty()) {
                 StacknatorGlobals.log("Empty tag: {}. Skipping.", key);
                 return;
             }
 
-            for (RegistryEntry<Item> registryEntry : items.get()) {
+            for (Holder<Item> registryEntry : items.get()) {
                 if (STACK_ITEMS.containsKey(registryEntry.value().toString())) {
                     StackItem stackItem = STACK_ITEMS.get(registryEntry.value().toString());
 

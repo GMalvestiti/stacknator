@@ -1,6 +1,6 @@
 package net.riser876.stacknator.core;
 
-import net.minecraft.item.Item;
+import net.minecraft.world.item.Item;
 
 public class StackItem {
 
@@ -11,9 +11,9 @@ public class StackItem {
 
     public StackItem(Item item) {
         this.key = item.toString();
-        this.stackSize = item.getMaxCount();
-        this.defaultStackSize = item.getMaxCount();
-        this.isDamageable = item.getDefaultStack().isDamageable();
+        this.stackSize = item.getDefaultMaxStackSize();
+        this.defaultStackSize = item.getDefaultMaxStackSize();
+        this.isDamageable = item.getDefaultInstance().isDamageableItem();
     }
 
     public String getKey() {
